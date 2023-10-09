@@ -157,7 +157,16 @@
             </div>
         </div>
 
+        <!-- <div class="link" :class="isOnPage">Homepage</div>
 
+
+        <script>
+            function isOnPage() {
+                // ....
+                let onPage = document.getElementByClass("link")
+                return onPage ? 'text-blue' : 'text-white';
+            }
+        </script> -->
         <!-- Main Section End -->
 
 
@@ -233,6 +242,7 @@
                     dataType: 'json',
                     success: function (productSets) {
                         products = productSets
+                        console.log(products);
                         fetchProductsByCategory('','All Categories');
                     },
                     error: function () {
@@ -317,16 +327,20 @@
 
             // Add Product Item to { orderItems } array
             function addToOrder(productId, quantity) {
+                // Find product from ordered items if exists
                 let existingOrderItem = orderItems.find(item => item.productId === productId);
+                // if existingOrderItem is "TRUE"
                 if (existingOrderItem) {
                     existingOrderItem.quantity += quantity;
                     existingOrderItem.subtotal = existingOrderItem.quantity * getProductPrice(productId);
                 } else {
+                    //if "FALSE"
                     let product = products.find(item => item.id === productId.toString());
                     if (product) {
                         let subtotal = parseInt(product.price) * quantity;
                         let orderItem = { productId, quantity, subtotal };
                         orderItems.push(orderItem);
+                        console.log(orderItems);
                     }
                 }
                 updateOrderList();
@@ -378,7 +392,7 @@
                                 <h5 class="mb-0">Total</h5>
                                 <p id="totalAmount" class="text-primary fw-medium fs-5 mb-0"></p>
                             </div>
-                            <button onClick="proceedCheckout()" type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="btn btn-success w-100 mt-3">Place Order</button>
+                            <button onClick="proceedCheckout()" type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="btn btn-success w-100 mt-3">Checkout</button>
                         </div>
                     `;
                 } else {
@@ -464,6 +478,9 @@
                 });
 
                 orderConfirmListElement.innerHTML = htmlString;
+
+                // Opening of modal for Bootstrap Modals (alternative)
+                // $('#staticBackdrop').modal('show');
             }
 
             // Place Order
@@ -471,7 +488,12 @@
                 let paymentType = document.getElementById('payment_type').value;
                 let customerName = document.getElementById('customer_name').value;
                 let orderNotes = document.getElementById('order_notes').value;
-
+                console.log({
+                        orders: orderItems,
+                        payment: paymentType,
+                        customer: customerName,
+                        notes: orderNotes
+                    });
                 $.ajax({
                     url: 'api/place_order.php',
                     method: 'GET',
@@ -496,9 +518,29 @@
                             $('#order_number').text('Order number: '+response.order_number)
                             console.log(response);
                         }
+
+                        // response.error ?
+                        // (
+                        //     const custField = document.getElementById('cust_field');
+                        //     htmlString = `
+                        //     <input type="text" class="form-control is-invalid" id="customer_name" placeholder="John Doe">
+                        //     <label for="customer_name">Customer Name is required</label>`;
+                        //     custField.innerHTML = htmlString;
+                        // ) 
+                        // :
+                        // (
+                        //     $('#staticBackdrop').modal('hide');
+                        //     $('#successModal').modal('show');
+                        //     $('#success_message').text(response.message)
+                        //     $('#order_number').text('Order number: '+response.order_number)
+                        //     console.log(response);
+                        // );
+                        
+                            
+                        
                     },
                     error: function () {
-                        console.error('Failed to fetch products.');
+                        console.error('Failed to place order.');
                     }
                 });
 

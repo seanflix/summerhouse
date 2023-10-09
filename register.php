@@ -22,10 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "Username is already in use.";
             } else {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    
-                $insert_query = "INSERT INTO users (username, password) VALUES (?, ?)";
+                $role_id = 2;    //temporary role id for staff account
+                $insert_query = "INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)";
                 $insert_stmt = $conn->prepare($insert_query);
-                $insert_stmt->bind_param("ss", $username, $hashed_password);
+                $insert_stmt->bind_param("sss", $username, $hashed_password, $role_id);
     
                 if ($insert_stmt->execute()) {
                     header("Location: login.php");
