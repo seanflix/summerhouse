@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summerhouse Cafe</title>
+    <title>The Tiny Summerhouse Cafe</title>
     <!-- Import Bootstrap -->
     <link rel="stylesheet" href="css/5.3.2_dist_css_bootstrap.min.css">
     <script src="js/5.3.2_dist_js_bootstrap.bundle.min.js"></script>
@@ -57,8 +57,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <main class="form-signin w-25 m-auto">
         <form method="post" action="login.php" class="d-flex flex-column align-items-center">
-            <img class="mx-auto rounded-pill mb-2" src="https://i.pinimg.com/736x/ad/d2/bb/add2bbc8671e8158d0442b99c8153276.jpg" alt="" width="72">
-            <h1 class="h3 mb-4 fw-medium">Summerhouse Cafe</h1>
+            <img class="mx-auto rounded-pill mb-4" src="product-images/logo.png" alt="" width="72">
+            <div class="d-flex justiy-content-center">
+                <h2 class="h3 mb-4 fw-medium">Summerhouse Cafe</h2>
+            </div>
 
             <div class="form-floating mb-3 w-100">
                 <input type="username" class="form-control" id="username" name="username" placeholder="username" required>

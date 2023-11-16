@@ -135,10 +135,10 @@ if ($editResult->num_rows > 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summerhouse Cafe</title>
+    <title>The Tiny Summerhouse Cafe</title>
     <!-- Import Bootstrap -->
     <link rel="stylesheet" href="css/5.3.2_dist_css_bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="css/jquery.dataTables.css" />
     <script src="js/5.3.2_dist_js_bootstrap.bundle.min.js"></script>
     <script src="js/fontawesome.js"></script>
     <style>
@@ -147,20 +147,24 @@ if ($editResult->num_rows > 0) {
 </head>
 <body>
     <!-- Navbar Section -->
-    <nav class="sticky-top p-3 text-bg-dark">
+    <nav class="sticky-top p-3" style="background-color: #141436;">
         <div class="container">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <a href="index.php" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none me-lg-2">
-                    <img class="rounded-pill" style="height: 40px;" src="https://i.pinimg.com/736x/ad/d2/bb/add2bbc8671e8158d0442b99c8153276.jpg" alt="">
+                    <img class="rounded-pill" style="height: 40px;" src="product-images/logo.png" alt="">
                 </a>
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="index.php" class="nav-link px-2 text-white">Home</a></li>
+
                     <li><a href="history.php" class="nav-link px-2 text-white">Orders</a></li>
+
                     <li><a href="products.php" class="nav-link px-2 text-warning fw-semibold">Products</a></li>
+                    
+                    <li><a href="categories2.php" class="nav-link px-2 text-white">Categories</a></li>
                 </ul>
 
-                <h6 class="mb-0 me-3">Welcome, <?php echo $_SESSION['username']; ?>!</h6>
+                <h6 class="mb-0 me-3 text-white">Welcome, <?php echo $_SESSION['username']; ?>!</h6>
                 <div class="text-end">
                     <a href="logout.php" type="button" class="btn btn-warning">Logout</a>
                 </div>
@@ -288,7 +292,7 @@ if ($editResult->num_rows > 0) {
     </div>
 
 <script src="js/jquery-3.7.1.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+<script src="js/jquery.dataTables.js"></script>
 <script>
 
     let products = [];
@@ -311,7 +315,12 @@ if ($editResult->num_rows > 0) {
 
     // Initialize datatables
     function initDataTables() {
-        $('#myTable').DataTable();
+        $('#myTable').DataTable( {
+            'columnDefs': [ {
+                'targets': [0,4], /* column index */
+                'orderable': false, /* true or false */
+            }]
+        });
         $('#myTable_length').addClass('mb-3');
         $('#myTable_paginate').addClass('mt-3');
         $('.dataTables_info').addClass('mt-3');
@@ -379,7 +388,7 @@ if ($editResult->num_rows > 0) {
     // Filter products
     function fetchProductsByCategory(categoryId, categoryName) {
         destroyDataTables();
-        let filteredProducts;
+        let filteredProductsfilteredProducts;
 
         if (categoryId !== "") {
             filteredProducts = products.filter(product => parseInt(product.category_id) === categoryId);
@@ -486,10 +495,10 @@ if ($editResult->num_rows > 0) {
             data: editData,
             contentType: false,
             processData: false,
+            dataType: 'json',
             success: function(response) {
-                console.log(response);
-                if (response.status === 'success') {
-                    alert(response);
+                if (response.status == "success") {
+                    alert(response.message);
                     fetchProducts('','All Categories');
                     // window.location.reload();
                 } else {

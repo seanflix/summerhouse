@@ -2,6 +2,11 @@
 include('connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    //added new varaiables here for fullname and mobile details
+    //upon registration
+    // $f_name = $_POST['f_name'];
+    // $l_name = $_POST['l_name'];
+    // $mobilenum = $_POST['mobilenum'];
     $username = $_POST['username'];
     $password = $_POST['password'];
     $password2 = $_POST['password2'];
@@ -25,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $role_id = 2;    //temporary role id for staff account
                 $insert_query = "INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)";
                 $insert_stmt = $conn->prepare($insert_query);
-                $insert_stmt->bind_param("sss", $username, $hashed_password, $role_id);
+                $insert_stmt->bind_param("ssssss", $username, $hashed_password, $role_id);
     
                 if ($insert_stmt->execute()) {
                     header("Location: login.php");
@@ -56,8 +61,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <main class="form-signin w-25 m-auto">
         <form method="post" action="register.php" class="d-flex flex-column align-items-center">
-            <img class="mx-auto rounded-pill mb-2" src="https://i.pinimg.com/736x/ad/d2/bb/add2bbc8671e8158d0442b99c8153276.jpg" alt="" width="72">
+            <img class="mx-auto rounded-pill mb-2" src="product-images/logo.png" alt="" width="72">
             <h1 class="h3 mb-4 fw-medium">Summerhouse Cafe</h1>
+
+            <!-- <div class="form-floating mb-3 w-100">
+                <input type="f_name" class="form-control" id="f_name" name="f_name" placeholder="f_name" required>
+                <label for="f_name">First Name</label>
+            </div>
+            <div class="form-floating mb-3 w-100">
+                <input type="l_name" class="form-control" id="l_name" name="l_name" placeholder="l_name" required>
+                <label for="l_name">Last Name</label>
+            </div>
+            <div class="form-floating mb-3 w-100">
+                <input type="mobilenum" class="form-control" id="mobilenum" name="mobilenum" placeholder="mobilenum" required>
+                <label for="mobilenum">Mobile Number</label>
+            </div> -->
 
             <div class="form-floating mb-3 w-100">
                 <input type="username" class="form-control" id="username" name="username" placeholder="username" required>
