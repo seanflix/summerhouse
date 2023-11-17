@@ -53,12 +53,47 @@ if(isset($_GET['delete_id'])) {
 if(isset($_GET['edit_id'])) {
     $editedId = $GET['edit_id'];
 
-    $editSql = "SELECT categories.*, ";
-}
+    $editSql = "SELECT categories.*, WHERE id = $editedId";
 
+    $editResult = $conn->query($editSql);
+        if ($editResult->num_rows > 0) {
+            $editRow = $editResult->fetch_assoc();
+            ?>
+                <div class="card rounded-4 overflow-hidden border-0 shadow mb-3">
+                        <div class="p-4">
+                            <h4 class="mb-0">Edit Category</h4>
+                        </div>
+                        <?php
+                            if(isset($success)) {
+                                echo '<p class="mb-0 text-success text-center mb-3">'.$success.'</p>';
+                            }
+                        ?>
+                        <div class="px-4 pb-4">
+                            <form action="categories2.php" method="post" enctype="multipart/form-data">
+                                <!-- <div class="form-floating mb-3">
+                                    <select class="form-select" id="category_id" name="category_id" aria-label="Enter category">
+                                        <option value="<?php //echo $editRow['category_id']; ?>" selected><?php //echo $editRow['category_name']; ?></option>
+                                    </select>
+                                    <label for="floatingSelect">Category</label>
+                                </div> -->
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="category_name" name="category_name" placeholder="Enter category name" value="<?php echo $editRow['category_name']; ?>">
+                                    <label for="category_name">Category Name</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    Save Changes
+                                </button>
+                                <a href="products.php" class="btn btn-secondary w-100 mt-2">
+                                    Cancel
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                    <?php
+                    }  
+                }
+                ?>
 
-
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -108,7 +143,7 @@ if(isset($_GET['edit_id'])) {
                         <tr>
                             <th class="col-2">Category ID</th>
                             <th class="col-2">Category Name</th>
-                            <th class="col-3">Category Actions</th>
+                            <th class="col-2 position-relative">Category Actions</th>
                         </tr>
                     </thead>
                     <tbody id="category_table">
@@ -152,169 +187,56 @@ if(isset($_GET['edit_id'])) {
         </div>
     </div>
 
+    
+
 <!-- JS Imports -->
 <script src="js/jquery-3.7.1.js"></script>
 <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script> -->
 
 <!-- JS Codes  -->
 <script>
-    // let categories = [];
-    // let displayedCategories = [];
-    // let fetchedCategories = [];
-    // let categoryEditID = [null];
-
-    
     $(document).ready(function () {
        // JavaScript code to fetch data from the PHP script
-fetch('api/get_categories.php')
-    .then(response => response.json())
-    .then(data => {
-        // Get a reference to the table body
-        const tableBody = document.getElementById('category_table');
+    fetch('api/get_categories.php')
+        .then(response => response.json())
+        .then(data => {
+            // Get a reference to the table body
+            const tableBody = document.getElementById('category_table');
 
-        // Loop through the data and create table rows with combined edit and delete buttons
-        console.log(data);
+            // Loop through the data and create table rows with combined edit and delete buttons
+            console.log(data);
 
-        let htmlString = ``;
-        data.forEach(category => {
-            htmlString += `
-                <tr>
-                    <td>
-                    ${category.id}
-                    </td>
-                    <td>
-                    ${category.category_name}
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-secondary">Edit</button>
-                        <button type="button" class="btn btn-danger">Delete</button>
-                    </td>
-                </tr>
-            `
+            let htmlString = ``;
+            data.forEach(category => {
+                htmlString += `
+                    <tr>
+                        <td>
+                        ${category.id}
+                        </td>
+                        <td>
+                        ${category.category_name}
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary">Edit</button>
+                            <button type="button" class="btn btn-danger">Delete</button>
+                        </td>
+                    </tr>
+                `
+            });
+            console.log(htmlString);
+            tableBody.innerHTML = htmlString;
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
-        console.log(htmlString);
-        tableBody.innerHTML = htmlString;
 
-
-
-
-
-            // const row = document.createElement('tr');
-            // const idCell = document.createElement('td');
-            // const nameCell = document.createElement('td');
-            // const actionsCell = document.createElement('td');
-            
-            // const editButton = document.createElement('button');
-            // editButton.textContent = 'Edit';
-            // editButton.addEventListener('click', () => {
-            //     // Handle edit button click for this row
-            //     // You can add your custom edit logic here
-            //     console.log('Editing Category: ', nameCell.textContent);
-            // });
-
-            // const deleteButton = document.createElement('button');
-            // deleteButton.textContent = 'Delete';
-            // deleteButton.addEventListener('click', () => {
-                // Handle delete button click for this row
-                // You can add your custom delete logic here
-            //     console.log('Deleting Category: ', nameCell.textContent);
-            // });
-
-            // idCell.textContent = category.id;
-            // nameCell.textContent = category.category_name;
-            
-            // actionsCell.appendChild(editButton);
-            // actionsCell.appendChild(deleteButton);
-
-            // row.appendChild(idCell);
-            // row.appendChild(nameCell);
-            // row.appendChild(actionsCell);
-
-            // tableBody.appendChild(row);
-        });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-    // });
-   
-    // $(document).ready ( function () {
-        //insert functions here
-        // fetchCategory(); //'', 'All Products'
-        // initDataTables();
-// 
-    // } );
+    function editCategory(categoryId) {
+        $('#editModal')
+    }
 
     
-    //data initiatlization for dataTables
-
-        // $(document).ready(function() {
-        //     $('#category_table').dataTables({
-        //         ajax: {
-        //             url: 'api/get_categories.php',
-        //             type: 'GET',
-        //             dataType: 'json',
-        //             dataSrc: '', // Use an empty string since the data array is not wrapped in a property
-        //             // initDataTables();
-        //         },
-
-        //         columns: [
-        //             { data: 'category_id' },
-        //             { data: 'category_name' },
-        //             {
-        //                 data: null,
-        //                 render: function(data, type, row) {
-        //                     return '<button class="editBtn">Edit</button>';
-        //                 }
-        //             },
-        //             {
-        //                 data: null,
-        //                 render: function(data, type, row) {
-        //                     return '<button class="deleteBtn">Delete</button>';
-        //                 }
-        //             }
-        //         ],
-        //     })
-        //     // function initDataTables() {
-        //     //         $('#myTable').DataTable();
-        //     //         $('#myTable_length').addClass('mb-3');
-        //     //         $('#myTable_paginate').addClass('mt-3');
-        //     //         $('#dataTables').addClass('mt-3');
-        //         // });
-
-        //     })
-
-
-    
-    // function fetchCategory() {
-    //     $.ajax({
-    //         url: 'api/get_categories.php',
-    //         method: 'GET',
-    //         dataType: 'json',
-    //         success: function(categories) {
-    //             fetchedCategories = categories;
-    //             console.log(fetchedCategories);
-
-    //         if (fetchedCategories !== ) {
-    //             filteredCategories = parseInt(category)
-    //             displayedCategories =  
-    //         };
-
-    //             const categoryContainer = document.getElementById('category_table');
-    //             let htmlString = '';
-
-                
-                
-    //         },
-    //         error: function () {
-    //             console.error('Failed to fetch Categories.');
-    //         }
-    //     })
-    // }
 
 </script>
-
-
 </body>
 </html>
