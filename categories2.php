@@ -42,7 +42,7 @@ if(isset($_GET['delete_id'])) {
     $deletedId = $_GET['deleted_id'];
 
     $deleteSql = "DELETE FROM categories WHERE id = $deletedId";
-    if ($conn->query($deletedSql) === TRUE) {
+    if ($conn->query($deletedSql) == TRUE) {
         echo "Category deleted successfully!";
     } else {
         echo "Error deleting product: " . $conn->error;
@@ -141,9 +141,9 @@ if(isset($_GET['edit_id'])) {
                 <table id="myTable" class="table table-borderless table-striped table-hover align-middle border rounded-4 overflow-hidden shadow">
                     <thead class="bg-dark">
                         <tr>
-                            <th class="col-2">Category ID</th>
-                            <th class="col-2">Category Name</th>
-                            <th class="col-2 position-relative">Category Actions</th>
+                            <th class="">Category ID</th>
+                            <th class="">Category Name</th>
+                            <th class="d-flex justify-content-center">Category Actions</th>
                         </tr>
                     </thead>
                     <tbody id="category_table">
@@ -217,25 +217,34 @@ if(isset($_GET['edit_id'])) {
                         ${category.category_name}
                         </td>
                         <td>
-                            <button type="button" class="btn btn-secondary">Edit</button>
-                            <button type="button" class="btn btn-danger">Delete</button>
+                            <div class="d-flex justify-content-center">
+                                <button onClick="editProduct(${category.id})" class="btn btn-sm btn-secondary me-1" style="width:70px;">Edit</button>
+                                <a class="btn btn-sm btn-danger" style="width:70px;" href="?delete_id=${category.id}" onclick='return confirm("Delete ${category.category_name} from list?")'>Delete</a>
+                            </div>
                         </td>
                     </tr>
                 `
-            });
-            console.log(htmlString);
-            tableBody.innerHTML = htmlString;
-            });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+                    });
+                    console.log(htmlString);
+                    tableBody.innerHTML = htmlString;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            
+            function editCategory(categoryId) {
+                $('#editModal')
+        }
 
-    function editCategory(categoryId) {
-        $('#editModal')
+    function getCategoryById(id) {
+        // Find category with the specified id
+        let foundCategory = categories.find(category => parseInt(category.id) === id);
+        // Return the found category or null if not found
+        return foundCategory || null;
     }
 
-    
+
 
 </script>
 </body>
