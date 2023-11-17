@@ -11,14 +11,30 @@ if (!isset($_SESSION['user_id'])) {
 //CREATE
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $category_name = $_POST['category_name'];
-    
-    $sql = "INSERT INTO categories (category_name) VALUES ('$category_name')";
+    $role_id = $_POST['role_id'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    if ($conn->query($sql) ===TRUE) {
-         $success = "Category added successfully!";
+    $query = "SELECT id FROM users WHERE username = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $error = "Username is already in use.";
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $role_id = 2;    //temporary role id for staff account
+        $insert_query = "INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)";
+        $insert_stmt = $conn->prepare($insert_query);
+        $insert_stmt->bind_param("sss", $username, $hashed_password, $role_id);
+
+        if ($insert_stmt->execute()) {
+            $success = "User added successfully!";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
     }
 }
 
@@ -41,11 +57,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_id'])) {
 if(isset($_GET['delete_id'])) {
     $deleteId = $_GET['delete_id'];
 
-    $deleteSql = "DELETE FROM categories WHERE id = $deleteId";
+    $deleteSql = "DELETE FROM users WHERE id = $deleteId";
     if ($conn->query($deleteSql) == TRUE) {
-        echo "Category deleted successfully!";
+        echo "User deleted successfully!";
     } else {
-        echo "Error deleting product: " . $conn->error;
+        echo "Error deleting user: " . $conn->error;
     }
 }
 
@@ -142,12 +158,13 @@ if(isset($_GET['edit_id'])) {
                 <table id="myTable" class="table table-borderless table-striped table-hover align-middle border rounded-4 overflow-hidden shadow">
                     <thead class="bg-dark">
                         <tr>
-                            <th class="">Category ID</th>
-                            <th class="">Category Name</th>
-                            <th class="d-flex justify-content-center">Category Actions</th>
+                            <th class="">User ID</th>
+                            <th class="">Name</th>
+                            <th class="">Username</th>
+                            <th class="d-flex justify-content-center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="category_table">
+                    <tbody id="users_table">
                         <!-- category details will dynamically populate here -->
                        
                     </tbody>
@@ -156,7 +173,7 @@ if(isset($_GET['edit_id'])) {
             <div class="col-4">
                 <div class="sticky-top card rounded-4 overflow-hidden border-0 shadow" style="top: 100px;">
                     <div class="p-4">
-                        <h4 class="mb-0">Add Category</h4>
+                        <h4 class="mb-0">Add User</h4>
                     </div>
                     <?php
                         // confirmation once the category has been added
@@ -165,25 +182,61 @@ if(isset($_GET['edit_id'])) {
                         }
                     ?>
                     <div class="px-4 pb-4">
-                        <form action="categories2.php" method="post" enctype="multipart/form-data">
-                            <!-- <div class="form-floating mb-3">
-                                <select name="form-select" id="ca"></select>
-                            </div> -->
+                        <form action="users.php" method="post" enctype="multipart/form-data">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="product_name" name="category_name" placeholder="Enter Category Name">
-                                <label for="category_name">Category Name</label>
+                                <select class="form-select" id="role_id" name="role_id" aria-label="Enter category">
+                                    <!--  -->
+                                </select>
+                                <label for="floatingSelect">Select Role</label>
                             </div>
-                            <!-- <div class="form-floating mb-3">
-                                <input type="text">
-                            </div> -->
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+                                <label for="username">Username</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+                                <label for="password">Password</label>
+                            </div>
                             <button type="submit" class="btn btn-primary btn-lg w-100">
-                                Add Category
+                                Create User
                             </button>
                         </form>
 
                     </div>
                 </div>
                         
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="editModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="#editUserForm">
+                    <div class="modal-body">
+                        <div class="px-4 pb-4">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="username" placeholder="Enter product name" disabled>
+                                <label for="product_name">Username</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <select class="form-select" id="edit_role_id" aria-label="Enter category">
+                                    <!--  -->
+                                </select>
+                                <label for="floatingSelect">Role</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onClick="closeEditModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button onClick="updateUser()" type="button" class="btn btn-success">Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -197,52 +250,98 @@ if(isset($_GET['edit_id'])) {
 <!-- JS Codes  -->
 <script>
     $(document).ready(function () {
-       // JavaScript code to fetch data from the PHP script
-    fetch('api/get_categories.php')
-        .then(response => response.json())
-        .then(data => {
-            // Get a reference to the table body
-            const tableBody = document.getElementById('category_table');
+        fetchRoles();
 
-            // Loop through the data and create table rows with combined edit and delete buttons
-            console.log(data);
+        // JavaScript code to fetch data from the PHP script
+        fetch('api/get_users.php')
+            .then(response => response.json())
+            .then(data => {
+                // Get a reference to the table body
+                const tableBody = document.getElementById('users_table');
 
-            let htmlString = ``;
-            data.forEach(category => {
-                htmlString += `
-                    <tr>
-                        <td>
-                        ${category.id}
-                        </td>
-                        <td>
-                        ${category.category_name}
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center">
-                                <button onClick="editProduct(${category.id})" class="btn btn-sm btn-secondary me-1" style="width:70px;">Edit</button>
-                                <a class="btn btn-sm btn-danger" style="width:70px;" href="?delete_id=${category.id}" onclick='return confirm("Delete ${category.category_name} from list?")'>Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                `
+                // Loop through the data and create table rows with combined edit and delete buttons
+                console.log(data);
+
+                let htmlString = ``;
+                data.forEach(user => {
+                    htmlString += `
+                        <tr>
+                            <td>
+                                ${user.id}
+                            </td>
+                            <td>
+                                John Doe
+                            </td>
+                            <td>
+                                ${user.username}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <button onClick="editUser(${user.id})" class="btn btn-sm btn-secondary me-1" style="width:70px;">Edit</button>
+                                    <a class="btn btn-sm btn-danger" style="width:70px;" href="?delete_id=${user.id}" onclick='return confirm("Delete ${user.username} from list?")'>Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    `
+                        });
+                        tableBody.innerHTML = htmlString;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                     });
-                    console.log(htmlString);
-                    tableBody.innerHTML = htmlString;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            
-            function editCategory(categoryId) {
-                $('#editModal')
-        }
+                
+                function editCategory(categoryId) {
+                    $('#editModal')
+            }
 
     function getCategoryById(id) {
         // Find category with the specified id
         let foundCategory = categories.find(category => parseInt(category.id) === id);
         // Return the found category or null if not found
         return foundCategory || null;
+    }
+
+    // Open edit modal
+    function editUser(userId) {
+        // $('#editModal').modal('show');
+        // let userName = document.getElementById('user_name');
+        // let userRoleId = document.getElementById('user_role');
+
+        console.log(userId);
+
+        // userName.value = productToEdit.category_id
+        // userRoleId.value = productToEdit.product_name
+
+        // console.log({
+        //     category_id: editCategory.value,
+        //     product_name: editProductName.value,
+        //     price: editPrice.value
+        // });
+    }
+
+    // Get all categories
+    function fetchRoles() {
+        $.ajax({
+            url: 'api/get_user_roles.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function (roles) {
+                const rolesFormDropdown = document.getElementById('role_id');
+                let htmlString = ``;
+
+                roles.forEach(function (role) {
+                    htmlString += `
+                        <option class="text-capitalize" value="${role.id}">${role.type}</option>
+                    `;
+                });
+                rolesFormDropdown.innerHTML = htmlString;
+                
+            },
+            error: function () {
+                console.error('Failed to fetch roles.');
+            }
+        });
     }
 
 
