@@ -160,6 +160,7 @@ if(isset($_GET['edit_id'])) {
                         <tr>
                             <th class="">User ID</th>
                             <th class="">Name</th>
+                            <th class="">Role</th>
                             <th class="">Username</th>
                             <th class="d-flex justify-content-center">Actions</th>
                         </tr>
@@ -221,11 +222,15 @@ if(isset($_GET['edit_id'])) {
                     <div class="modal-body">
                         <div class="px-4 pb-4">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="username" placeholder="Enter product name" disabled>
-                                <label for="product_name">Username</label>
+                                <input type="text" class="form-control" id="edit_user_id" placeholder="Enter product name" disabled>
+                                <label for="edit_user_id"></label>
                             </div>
                             <div class="form-floating mb-3">
-                                <select class="form-select" id="edit_role_id" aria-label="Enter category">
+                                <input type="text" class="form-control" id="edit_username" placeholder="Enter product name" disabled>
+                                <label for="edit_username"></label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <select class="form-select" id="edit_user_role" aria-label="Enter category">
                                     <!--  -->
                                 </select>
                                 <label for="floatingSelect">Role</label>
@@ -249,10 +254,15 @@ if(isset($_GET['edit_id'])) {
 
 <!-- JS Codes  -->
 <script>
-    $(document).ready(function () {
-        fetchRoles();
+    let users = [];
+    let userToEdit = null;
 
-        // JavaScript code to fetch data from the PHP script
+    $(document).ready(function () {
+        fetchUsers();
+        fetchRoles();
+    })
+
+    function fetchUsers() {
         fetch('api/get_users.php')
             .then(response => response.json())
             .then(data => {
@@ -260,7 +270,8 @@ if(isset($_GET['edit_id'])) {
                 const tableBody = document.getElementById('users_table');
 
                 // Loop through the data and create table rows with combined edit and delete buttons
-                console.log(data);
+                users = data;
+                console.log(users);
 
                 let htmlString = ``;
                 data.forEach(user => {
@@ -271,6 +282,9 @@ if(isset($_GET['edit_id'])) {
                             </td>
                             <td>
                                 John Doe
+                            </td>
+                            <td class="text-capitalize">
+                                ${user.type}
                             </td>
                             <td>
                                 ${user.username}
@@ -283,17 +297,14 @@ if(isset($_GET['edit_id'])) {
                             </td>
                         </tr>
                     `
-                        });
-                        tableBody.innerHTML = htmlString;
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                });
+                tableBody.innerHTML = htmlString;
+            });
+    }
                 
-                function editCategory(categoryId) {
-                    $('#editModal')
-            }
+    function editCategory(categoryId) {
+        $('#editModal')
+    }
 
     function getCategoryById(id) {
         // Find category with the specified id
@@ -304,11 +315,14 @@ if(isset($_GET['edit_id'])) {
 
     // Open edit modal
     function editUser(userId) {
-        // $('#editModal').modal('show');
-        // let userName = document.getElementById('user_name');
-        // let userRoleId = document.getElementById('user_role');
+        fetchUserToEdit(userId)
 
-        console.log(userId);
+        $('#editModal').modal('show');
+        let id = document.getElementById('edit_user_id');
+        let userName = document.getElementById('edit_username');
+        let userRoleId = document.getElementById('edit_user_role');
+
+        console.log(userToEdit);
 
         // userName.value = productToEdit.category_id
         // userRoleId.value = productToEdit.product_name
@@ -318,6 +332,22 @@ if(isset($_GET['edit_id'])) {
         //     product_name: editProductName.value,
         //     price: editPrice.value
         // });
+    }
+
+    function fetchUserToEdit(userId) {
+        $.ajax({
+            url: 'api/get_user_details.php',
+            method: 'GET',
+            data: { userId: userId },
+            dataType: 'json',
+            success: function (user) {
+                userToEdit = user
+                console.log(userToEdit);
+            },
+            error: function () {
+                console.error('Failed to fetch user.');
+            }
+        });
     }
 
     // Get all categories
