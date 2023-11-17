@@ -59,56 +59,13 @@ if(isset($_GET['delete_id'])) {
 
     $deleteSql = "DELETE FROM users WHERE id = $deleteId";
     if ($conn->query($deleteSql) == TRUE) {
-        echo "User deleted successfully!";
+        $deleteMessage = "User deleted successfully";
     } else {
         echo "Error deleting user: " . $conn->error;
     }
 }
 
-//EDIT
-if(isset($_GET['edit_id'])) {
-    $editedId = $GET['edit_id'];
-
-    $editSql = "SELECT categories.*, WHERE id = $editedId";
-
-    $editResult = $conn->query($editSql);
-        if ($editResult->num_rows > 0) {
-            $editRow = $editResult->fetch_assoc();
-            ?>
-                <div class="card rounded-4 overflow-hidden border-0 shadow mb-3">
-                        <div class="p-4">
-                            <h4 class="mb-0">Edit Category</h4>
-                        </div>
-                        <?php
-                            if(isset($success)) {
-                                echo '<p class="mb-0 text-success text-center mb-3">'.$success.'</p>';
-                            }
-                        ?>
-                        <div class="px-4 pb-4">
-                            <form action="categories2.php" method="post" enctype="multipart/form-data">
-                                <!-- <div class="form-floating mb-3">
-                                    <select class="form-select" id="category_id" name="category_id" aria-label="Enter category">
-                                        <option value="<?php //echo $editRow['category_id']; ?>" selected><?php //echo $editRow['category_name']; ?></option>
-                                    </select>
-                                    <label for="floatingSelect">Category</label>
-                                </div> -->
-                                <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="category_name" name="category_name" placeholder="Enter category name" value="<?php echo $editRow['category_name']; ?>">
-                                    <label for="category_name">Category Name</label>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-lg w-100">
-                                    Save Changes
-                                </button>
-                                <a href="products.php" class="btn btn-secondary w-100 mt-2">
-                                    Cancel
-                                </a>
-                            </form>
-                        </div>
-                    </div>
-                    <?php
-                    }  
-                }
-                ?>
+?>
 
 
 <!DOCTYPE html>
@@ -150,11 +107,11 @@ if(isset($_GET['edit_id'])) {
     <div class="container my-5">
         <div class="row">
             <div class="col-8">
-                <div class="d-flex justify-content-between mb-3">
-                    <div class="dropdown">
-                        <!-- <button>test</button> -->
-                    </div>
-                </div>
+                <?php
+                    if(isset($deleteMessage)) {
+                        echo '<p class="mb-0 text-success text-center mb-3">'.$deleteMessage.'</p>';
+                    }
+                ?>
                 <table id="myTable" class="table table-borderless table-striped table-hover align-middle border rounded-4 overflow-hidden shadow">
                     <thead class="bg-dark">
                         <tr>
@@ -180,6 +137,12 @@ if(isset($_GET['edit_id'])) {
                         // confirmation once the category has been added
                         if(isset($success)) {
                             echo '<p class="mb-0 text-success text-center mb-3">'.$success.'</p>';
+                        }
+                    ?>
+                    <?php
+                        // confirmation once the category has been added
+                        if(isset($error)) {
+                            echo '<p class="mb-0 text-danger text-center mb-3">'.$error.'</p>';
                         }
                     ?>
                     <div class="px-4 pb-4">
@@ -218,19 +181,19 @@ if(isset($_GET['edit_id'])) {
                     <h5 class="modal-title">Edit User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="#editUserForm">
+                <form id="editUserForm">
                     <div class="modal-body">
                         <div class="px-4 pb-4">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="edit_user_id" placeholder="Enter product name" disabled>
-                                <label for="edit_user_id"></label>
+                                <input type="text" class="form-control" id="edit_user_id" name="edit_user_id" placeholder="Enter product name" disabled>
+                                <label for="edit_user_id">Id</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="edit_username" placeholder="Enter product name" disabled>
-                                <label for="edit_username"></label>
+                                <input type="text" class="form-control" id="edit_username" name="edit_username" placeholder="Enter product name" disabled>
+                                <label for="edit_username">Username</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <select class="form-select" id="edit_user_role" aria-label="Enter category">
+                                <select class="form-select" id="edit_user_role" name="edit_user_role" aria-label="Enter category">
                                     <!--  -->
                                 </select>
                                 <label for="floatingSelect">Role</label>
@@ -238,7 +201,7 @@ if(isset($_GET['edit_id'])) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button onClick="closeEditModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button onClick="updateUser()" type="button" class="btn btn-success">Save Changes</button>
                     </div>
                 </form>
@@ -315,34 +278,23 @@ if(isset($_GET['edit_id'])) {
 
     // Open edit modal
     function editUser(userId) {
-        fetchUserToEdit(userId)
-
-        $('#editModal').modal('show');
         let id = document.getElementById('edit_user_id');
         let userName = document.getElementById('edit_username');
         let userRoleId = document.getElementById('edit_user_role');
-
-        console.log(userToEdit);
-
-        // userName.value = productToEdit.category_id
-        // userRoleId.value = productToEdit.product_name
-
-        // console.log({
-        //     category_id: editCategory.value,
-        //     product_name: editProductName.value,
-        //     price: editPrice.value
-        // });
-    }
-
-    function fetchUserToEdit(userId) {
+        
         $.ajax({
             url: 'api/get_user_details.php',
             method: 'GET',
             data: { userId: userId },
             dataType: 'json',
-            success: function (user) {
-                userToEdit = user
-                console.log(userToEdit);
+            success: function (response) {
+                response.forEach(user => {
+                    id.value = user.id;
+                    userName.value = user.username
+                    userRoleId.value = user.role_id
+                    console.log(user);
+                });
+                $('#editModal').modal('show');
             },
             error: function () {
                 console.error('Failed to fetch user.');
@@ -358,20 +310,34 @@ if(isset($_GET['edit_id'])) {
             dataType: 'json',
             success: function (roles) {
                 const rolesFormDropdown = document.getElementById('role_id');
+                const roledEditForm = document.getElementById('edit_user_role');
                 let htmlString = ``;
+                let htmlString2 = ``;
 
                 roles.forEach(function (role) {
                     htmlString += `
                         <option class="text-capitalize" value="${role.id}">${role.type}</option>
                     `;
                 });
+
+                roles.forEach(function (role) {
+                    htmlString2 += `
+                        <option class="text-capitalize" value="${role.id}">${role.type}</option>
+                    `;
+                });
+
                 rolesFormDropdown.innerHTML = htmlString;
+                roledEditForm.innerHTML = htmlString2;
                 
             },
             error: function () {
                 console.error('Failed to fetch roles.');
             }
         });
+    }
+
+    function updateUser() {
+        console.log(new FormData(document.getElementById('editUserForm')))
     }
 
 
