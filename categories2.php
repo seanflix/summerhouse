@@ -119,7 +119,8 @@ if(isset($_GET['edit_id'])) {
                     <li><a href="index.php" class="nav-link px-2 text-white">Home</a></li>
                     <li><a href="history.php" class="nav-link px-2 text-white">Orders</a></li>
                     <li><a href="products.php" class="nav-link px-2 text-white">Products</a></li>
-                    <li><a href="categories.php" class="nav-link px-2 text-warning fw-semibold">Categories</a></li>
+                    <li><a href="categories2.php" class="nav-link px-2 text-warning fw-semibold">Categories</a></li>
+                    <li><a href="users.php" class="nav-link px-2 text-white">Users</a></li>
                 </ul>
                 <h6 class="mb-0 me-3 text-white">Welcome, <?php echo $_SESSION['username']; ?>!</h6>
                 <div class="text-end">
@@ -187,6 +188,31 @@ if(isset($_GET['edit_id'])) {
         </div>
     </div>
 
+    <div class="modal fade" id="editModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="#editCategoryForm">
+                    <div class="modal-body">
+                        <div class="px-4 pb-4">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="edit_category_name" placeholder="Enter category name">
+                                <label for="category_name">Enter New Category Name</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onClick="closeEditModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button onClick="updateProduct()" type="button" class="btn btn-success">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     
 
 <!-- JS Imports -->
@@ -197,14 +223,18 @@ if(isset($_GET['edit_id'])) {
 <script>
     $(document).ready(function () {
        // JavaScript code to fetch data from the PHP script
-    fetch('api/get_categories.php')
+        fetchCategories();
+    })
+
+    function fetchCategories() {
+        fetch('api/get_categories.php')
         .then(response => response.json())
         .then(data => {
             // Get a reference to the table body
             const tableBody = document.getElementById('category_table');
 
             // Loop through the data and create table rows with combined edit and delete buttons
-            console.log(data);
+            // console.log(data);
 
             let htmlString = ``;
             data.forEach(category => {
@@ -218,33 +248,46 @@ if(isset($_GET['edit_id'])) {
                         </td>
                         <td>
                             <div class="d-flex justify-content-center">
-                                <button onClick="editProduct(${category.id})" class="btn btn-sm btn-secondary me-1" style="width:70px;">Edit</button>
+                                <button onClick="editCategory(${category.id})" class="btn btn-sm btn-secondary me-1" style="width:70px;">Edit</button>
                                 <a class="btn btn-sm btn-danger" style="width:70px;" href="?delete_id=${category.id}" onclick='return confirm("Delete ${category.category_name} from list?")'>Delete</a>
                             </div>
                         </td>
                     </tr>
                 `
                     });
-                    console.log(htmlString);
+                    // console.log(htmlString);
                     tableBody.innerHTML = htmlString;
                     });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            
-            function editCategory(categoryId) {
-                $('#editModal')
-        }
-
+                }
+    
     function getCategoryById(id) {
         // Find category with the specified id
-        let foundCategory = categories.find(category => parseInt(category.id) === id);
+        let foundCategory = categories.find(category=>parseInt(category.id) == id);
         // Return the found category or null if not found
         return foundCategory || null;
     }
 
+    function editCategory(categoryId) {
+        // alert("clicked");
+        $('#editModal').modal('show');
+        let editCategoryName = document.getElementById('edit_category_name');
+        categoryEditId = categoryId;
+        // alert(categoryEditId);
 
+        const categoryToEdit = getCategoryById(categoryId);
+        // console.log(categoryId);
+
+        editCategory.value = categoryToEdit.category_id
+        editCategoryName.value = categoryToEdit.category_name
+
+        alert(editCategory.value);
+
+        console.log({
+            category_id: editCategory.value,
+            category_name: editCategoryName.value
+        });
+
+    }
 
 </script>
 </body>

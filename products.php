@@ -156,12 +156,10 @@ if ($editResult->num_rows > 0) {
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="index.php" class="nav-link px-2 text-white">Home</a></li>
-
                     <li><a href="history.php" class="nav-link px-2 text-white">Orders</a></li>
-
                     <li><a href="products.php" class="nav-link px-2 text-warning fw-semibold">Products</a></li>
-                    
                     <li><a href="categories2.php" class="nav-link px-2 text-white">Categories</a></li>
+                    <li><a href="users.php" class="nav-link px-2 text-white">Users</a></li>
                 </ul>
 
                 <h6 class="mb-0 me-3 text-white">Welcome, <?php echo $_SESSION['username']; ?>!</h6>
@@ -500,7 +498,8 @@ if ($editResult->num_rows > 0) {
                 if (response.status == "success") {
                     alert(response.message);
                     fetchProducts('','All Categories');
-                    // window.location.reload();
+                    window.location.reload();
+                    
                 } else {
                     alert(response.message);
                 }

@@ -34,9 +34,10 @@
                         <li><a href="history.php" class="nav-link px-2 text-white">Orders</a></li>
                         <li><a href="products.php" class="nav-link px-2 text-white">Products</a></li>
                         <li><a href="categories2.php" class="nav-link px-2 text-white">Categories</a></li>
+                        <li><a href="users.php" class="nav-link px-2 text-white">Users</a></li>
                     </ul>
 
-                    <h6 class="mb-0 me-3 text-white"Welcome, <?php echo $_SESSION['username']; ?>!</h6>
+                    <h6 class="mb-0 me-3 text-white">Welcome, <?php echo $_SESSION['username']; ?>!</h6>
                     <div class="text-end">
                         <a href="logout.php" type="button" class="btn btn-warning">Logout</a>
                     </div>
