@@ -39,10 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_id'])) {
 
 //DELETE
 if(isset($_GET['delete_id'])) {
-    $deletedId = $_GET['deleted_id'];
+    $deleteId = $_GET['delete_id'];
 
-    $deleteSql = "DELETE FROM categories WHERE id = $deletedId";
-    if ($conn->query($deletedSql) == TRUE) {
+    $deleteSql = "DELETE FROM categories WHERE id = $deleteId";
+    if ($conn->query($deleteSql) == TRUE) {
         echo "Category deleted successfully!";
     } else {
         echo "Error deleting product: " . $conn->error;
